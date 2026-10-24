@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WS Client</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+            background-color: black;
+            color: green;
+            height: 100vh;
+            width: 100%;
+            padding: 20px;
+
+        }
+        form{
+            display:flex;
+            flex-wrap:wrap;
+            align-items:center;
+            /* gap: 20px; */
+            background-color: #222;
+            width: 100%; 
+            height: 50px;
+            border:1px solid green;
+            border-radius: 10px;
+
+        }
+        input{  padding: 5px;
+            margin: 0px 20px;
+            padding-left: 10px;
+            border: none;
+            border-radius:5px;
+            font-size: 16px ;
+            min-width: 320px;
+
+        }
+
+        button{
+            padding: 5px 10px;
+            font-size: 16px ;
+            font-weight: bold;
+            border:none;
+            border-radius:5px;
+            
+
+        }
+
+        #message-log{
+            width: 100%;
+            height: 70%;
+            border: 1px solid white;
+            padding:20px;
+            margin-block: 20px;
+            overflow-y: scroll;
+            color: green;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <h2 id="connection-status">connecting...</h2>
+
+    <section name="log" id="message-log"></section>
+
+    <form id="form">
+        <input type="text" name="msg" placeholder="Enter message" required>
+        <button type="submit">send</button>
+    </form>
+    
+
+    <script>
+
+        const form = document.getElementById("form");
+        const connectionStatus = document.getElementById("connection-status");
+        const x = document.getElementById("message-log");
+        const socket = new WebSocket("ws://localhost:8080");
+
+        function setConnectionStatus(status){
+            connectionStatus.innerText = status;
+        }
+
+        function logMessage(user,msg){
+            x.insertAdjacentHTML("beforeend",`<p>${user} ${msg}</p>`);
+
+        }
+
+        socket.addEventListener("open",()=>{
+
+            setConnectionStatus( "Connected to : ws://localhost:8080 ");
+                
+        });
+
+        socket.addEventListener("error", (error)=>{
+            setConnectionStatus("Connection Error");
+        });
+
+        socket.addEventListener("message",(msg)=>{
+             logMessage(">>",msg.data)
+            console.log(msg.data);
+            
+        });
+
+        socket.addEventListener("close",()=>{
+            setConnectionStatus("Connection Closed");
+        });
+       
+
+        form.addEventListener("submit",(event)=>{
+            event.preventDefault();
+            const msg = event.target.msg.value;
+            socket.send(msg);
+            logMessage(":",msg);
+            event.target.reset();
+
+        });
+
+    </script>
+</body>
+</html>
